@@ -4,7 +4,9 @@
 
 这里面会主要记录自己的短板以及面试的过程
 
-有时候，有些坑你是躲不过去的。
+有时候，有些坑你是躲不过去的。  
+好菜啊自己，阿里腾讯都一面就挂。
+
 
 ##Code
 [没事写的一遍kmp](https://github.com/lxhsb/Lackness/blob/master/Code/kmp)

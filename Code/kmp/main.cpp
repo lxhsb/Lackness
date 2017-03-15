@@ -42,10 +42,7 @@ void cal_nxt(string p)
 
                 i++;
                 j++;
-               // if(p[i]!=p[j])
                 nxt[i]= j ;
-               // else
-              //  nxt[i] = nxt[j];
             }
 
 
@@ -98,16 +95,5 @@ int main()
         cout<<kmp_count(m,p)<<endl;
 
     }
-
-
-
-
-
-
-
-
-
-
-
     return 0 ;
 }

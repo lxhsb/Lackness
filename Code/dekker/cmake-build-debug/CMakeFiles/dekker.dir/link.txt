@@ -1,0 +1,1 @@
+/usr/bin/c++   -pthread -g   CMakeFiles/dekker.dir/main.cpp.o  -o dekker 
