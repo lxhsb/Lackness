@@ -32,7 +32,9 @@
 *.app
 
 # idea
-/*/cmake-build-debug/*
-/*/.idea/*
+/Code/*/cmake-build-debug/*
+/Code/*/.idea/*
+/Code/*/*/cmake-build-debug/*
+/Code/*/*/.idea/*
 #Test
-/Code/TestC11/*
+Code/TestC11/*
