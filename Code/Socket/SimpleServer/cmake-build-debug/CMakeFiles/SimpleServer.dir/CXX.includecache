@@ -7,20 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/wyy/Lackness/Code/Socket/SimpleServer/main.cpp
-stdio.h
--
-stdlib.h
--
-string.h
--
-errno.h
--
-sys/types.h
+bits/stdc++.h
 -
 sys/socket.h
 -
 netinet/in.h
--
-zconf.h
 -
 
