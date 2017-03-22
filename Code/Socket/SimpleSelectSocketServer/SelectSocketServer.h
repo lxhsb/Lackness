@@ -30,7 +30,7 @@ private:
     int server_socket_fd;
     timeval max_time ;//写死
     int port =8000;
-    volatile bool have_to_stop= true;
+    volatile bool have_to_stop= false;
     volatile bool is_running= false;//这点不是线程安全的  但是懒
     int init_server();
 public :

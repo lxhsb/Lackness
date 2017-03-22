@@ -12,8 +12,7 @@ SelectSocketServer::SelectSocketServer()
     server_socket_fd = -1 ;
 }
 int SelectSocketServer:: init_server() {//java 写习惯了  好喜欢用this...
-    this->max_time.tv_sec = 20;//20s
-    this->max_time.tv_usec = 0 ;
+
     this->server_socket_fd = socket(AF_INET,SOCK_STREAM,0);//tcp ;
     if(server_socket_fd == -1 )
     {
@@ -23,11 +22,11 @@ int SelectSocketServer:: init_server() {//java 写习惯了  好喜欢用this...
     /*
      * 端口快速释放
      */
-//    int reuse = 1;
-//    if (setsockopt(this->server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
-//        printf("port error \n");
-//        return -1;
-//    }
+    int reuse = 1;
+    if (setsockopt(this->server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
+        printf("port error \n");
+        return -1;
+    }
     memset(&this->server_socket,0,sizeof this->server_socket);
     server_socket.sin_port = htons(this->port);
     server_socket.sin_family = AF_INET;
@@ -63,12 +62,12 @@ int SelectSocketServer::do_accept() {
         if (errno == EINTR) {
             goto ACCEPT;
         } else {
-            fprintf(stderr, "accept fail,error:%s\n", strerror(errno));
+            printf( "accept fail,error:%s\n", strerror(errno));
             return -1;
         }
     }
 
-    fprintf(stdout, "accept a new client: %s:%d\n",
+    printf( "accept a new client: %s:%d\n",
             inet_ntoa(cliaddr.sin_addr),cliaddr.sin_port);
 
     //将新的连接描述符添加到数组中
@@ -83,7 +82,7 @@ int SelectSocketServer::do_accept() {
     }
 
     if (i == FD_SETSIZE) {
-        fprintf(stderr,"too many clients.\n");
+        printf("too many clients.\n");
         return -1;
     }
 
@@ -125,7 +124,11 @@ int SelectSocketServer::set_port(int _port) {
 }
 int SelectSocketServer::start() {
     is_running = true;
-    init_server();
+    if(init_server()<0)
+    {
+        return  -1 ;
+    }
+    printf("init finish\n");
     int  clifd = -1;
     int  retval = 0;
     fd_set *readfds =&all_fd;
@@ -148,13 +151,15 @@ int SelectSocketServer::start() {
             max_fd = (clifd > max_fd ? clifd : max_fd);
         }
         /*开始轮询接收处理服务端和客户端套接字*/
+        //timeval out = {30,0};
+        this->max_time = {30,0};
         retval = select(max_fd + 1, readfds, NULL, NULL, &this->max_time);
         if (retval == -1) {
-            fprintf(stderr, "select error:%s.\n", strerror(errno));
+            printf( "select error:%s.\n", strerror(errno));
             return -1 ;
         }
         if (retval == 0) {
-            fprintf(stdout, "select is timeout.\n");
+            printf( "select is timeout.\n");
             continue;
         }
         if (FD_ISSET(server_socket_fd, readfds)) {
