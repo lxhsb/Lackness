@@ -1,43 +1,91 @@
 #include <iostream>
-#include<semaphore.h>
 #include <unistd.h>
 #include <thread>
-using namespace std ;
-sem_t writer ;//写等待 0有 1没
-sem_t reader ;//读等待 0有 1 没
-void doRead(int cnt )
-{
-    cout<<cnt<<" is going to read"<<endl;
-    sem_wait(&writer);//w--
-    sem_post(&reader);//r++
-    cout<<cnt <<" is reading"<<endl;
-    sleep(5);
-    cout<<cnt<<" read finish"<<endl;
-    sem_wait(&reader);//r--
-    sem_post(&writer);//w++
-}
-void doWrite(int cnt)
-{
+#include <semaphore.h>
+#include <vector>
 
-    cout<<cnt<<" is going to write"<<endl;
-    sem_wait(&writer);
- //   sem_wait(&reader);
-    cout<<cnt <<" is writing"<<endl;
-    sleep(5);
-    cout<<cnt<<" write finish"<<endl;
-    sem_post(&writer);
+using namespace std ;
+class RWLock
+{
+private:
+    sem_t mutex ;
+    sem_t db ;
+    int readerCount ;
+public :
+    RWLock() ;
+    void RLock();
+    void RUnLock();
+    void WLock();
+    void WUnLock();
+};
+RWLock::RWLock() {
+    readerCount = 0 ;
+    sem_init(&mutex,0,1);
+    sem_init(&db,0,1);
+
+}
+void RWLock::RLock() {
+    sem_wait(&mutex);
+    readerCount++;
+    if(readerCount == 1)
+    {
+        sem_wait(&db);
+    }
+    sem_post(&mutex);
+}
+void RWLock::RUnLock() {
+    sem_wait(&mutex);
+    readerCount--;
+    if(readerCount == 0)
+    {
+        sem_post(&db);
+    }
+    sem_post(&mutex);
+}
+void RWLock::WLock() {
+    sem_wait(&db);
+}
+
+void RWLock::WUnLock() {
+    sem_post(&db);
+}
+
+void reader(RWLock *lock,int i)
+{
+    printf("%d is going to read \n",i);
+    lock->RLock();
+    printf("%d reading \n",i);
+    sleep(2);
+    lock->RUnLock();
+    printf("%d read finish  \n",i);
+
+}
+void writer(RWLock *lock ,int i )
+{
+    printf("%d is going to write \n",i);
+    lock->WLock();
+    printf("%d  writing \n",i);
+    sleep(2);
+    lock->WUnLock();
+    printf("%d write finish \n",i);
 }
 int main() {
-    for(int i = 0 ;i<10 ;i++)
+    vector<thread*>v ;
+    RWLock lock ;
+    for(int i = 0 ;i< 100 ;i++)
     {
-        if(i%3)
+        if(i%3 == 0 )
         {
-            thread x(writer,i);
+            v.push_back(new thread(writer,&lock,i));
         }
         else
         {
-            thread x(reader,i);
+            v.push_back(new thread(reader,&lock,i));
         }
+    }
+    for(auto x : v)
+    {
+        x->join();
     }
 
     return 0;
